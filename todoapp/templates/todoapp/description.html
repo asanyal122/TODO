@@ -1,0 +1,61 @@
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<ul id="todos">
+    {% for todo in todos %}
+        <li>{{todo.title}}</li>
+    {% endfor %}
+</ul>
+<form action="" enctype="multipart/form-data" method="POST" id="form">
+    {% csrf_token %}
+    Title : <input type="text" id="create">
+    <button type="submit">Submit</button>
+</form>
+
+
+
+<script>
+        var loc=window.location;
+        var formData=$('#form');
+        var msginput=$('#create');
+        var chatholder=$('#todos');
+        //console.log(loc);
+        var wsStart='ws://';
+        if(loc.protocol == 'https:'){
+            wsStart='wss://';
+        }
+        var endpoint=wsStart+loc.host+loc.pathname;
+        var socket = new WebSocket(endpoint);
+    
+        socket.onmessage = function(e){
+            console.log("message",e);
+            var chatData=JSON.parse(e.data)
+            if(chatData.group!="{{Group}}"){
+                alert(chatData.group);
+            }
+            else{
+                chatholder.append("<li>" + chatData.message + " via "+chatData.username +"</li>" );
+            }
+            
+        }
+        socket.onopen= function(e){
+            console.log("open",e);
+            formData.submit(function(event){
+                event.preventDefault();
+                var msgtxt=msginput.val();
+                var finalData={
+                    'message':msgtxt,
+                }
+                chatholder.append("<li>" + msgtxt +" via "+"{{request.user}}" + "</li>" );
+                socket.send(JSON.stringify(finalData));
+                msginput.val('');
+            });
+        }
+        socket.onerror= function(e){
+            console.log("error",e);
+        }
+        socket.onclose= function(e){
+            console.log("close",e);
+        }
+    
+    
+    
+    </script>

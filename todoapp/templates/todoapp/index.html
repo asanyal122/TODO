@@ -1,0 +1,33 @@
+<ul>
+    {% for grp in Groups %}
+        <li><a href="{%url 'todoapp:description' grp.id%}">{{grp.gname}}</a></li>
+    {% endfor %}
+</ul>
+<script>
+    var loc=window.location;
+    //console.log(loc);
+    var wsStart='ws://';
+    if(loc.protocol == 'https:'){
+        wsStart='wss://';
+    }
+    var endpoint=wsStart+loc.host+loc.pathname;
+    var socket = new WebSocket(endpoint);
+
+    socket.onmessage = function(e){
+        console.log("message",e);
+        var chat=JSON.parse(e.data)
+        alert(chat.group);
+    }
+    socket.onopen= function(e){
+        console.log("open",e);
+    }
+    socket.onerror= function(e){
+        console.log("error",e);
+    }
+    socket.onclose= function(e){
+        console.log("close",e);
+    }
+
+
+
+</script>
